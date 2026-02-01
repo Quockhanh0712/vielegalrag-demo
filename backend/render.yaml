@@ -1,0 +1,29 @@
+# Render.com Blueprint Configuration
+# Deploy: Connect repo → Use this config
+
+services:
+  - type: web
+    name: vielegalrag-backend
+    env: python
+    region: singapore
+    plan: free
+    buildCommand: pip install -r requirements.prod.txt
+    startCommand: cd .. && python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: QDRANT_HOST
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: QDRANT_LEGAL_COLLECTION
+        value: legal_rag_vn
+      - key: QDRANT_USER_COLLECTION
+        value: user_docs_private
+      - key: FPT_CLOUD_API_KEY
+        sync: false
+      - key: EMBEDDING_DEVICE
+        value: cpu
+      - key: RERANKER_DEVICE
+        value: cpu
+      - key: DEBUG
+        value: false

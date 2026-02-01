@@ -3,34 +3,29 @@ Legal RAG Backend - FastAPI Application Entry Point.
 """
 import sys
 from pathlib import Path
+
+# CRITICAL: Add parent directory to sys.path BEFORE any backend imports
+# This allows 'from backend.xxx' to work when running from backend/ folder
+_parent = str(Path(__file__).parent.parent)
+if _parent not in sys.path:
+    sys.path.insert(0, _parent)
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-# For both local (with backend/ prefix) and Render (without prefix)
-try:
-    from backend.config import settings
-    from backend.utils.logger import logger
-    from backend.utils.exceptions import LegalRAGException
-    from backend.db.database import init_db, close_db
-    from backend.api.status import router as status_router
-    from backend.api.search import router as search_router
-    from backend.api.chat import router as chat_router
-    from backend.api.upload import router as upload_router
-    from backend.api.llm_settings import router as llm_router
-except ImportError:
-    # Render deployment: root is backend/
-    from config import settings
-    from utils.logger import logger
-    from utils.exceptions import LegalRAGException
-    from db.database import init_db, close_db
-    from api.status import router as status_router
-    from api.search import router as search_router
-    from api.chat import router as chat_router
-    from api.upload import router as upload_router
-    from api.llm_settings import router as llm_router
+# Now backend.xxx imports will work
+from backend.config import settings
+from backend.utils.logger import logger
+from backend.utils.exceptions import LegalRAGException
+from backend.db.database import init_db, close_db
+from backend.api.status import router as status_router
+from backend.api.search import router as search_router
+from backend.api.chat import router as chat_router
+from backend.api.upload import router as upload_router
+from backend.api.llm_settings import router as llm_router
 
 
 @asynccontextmanager

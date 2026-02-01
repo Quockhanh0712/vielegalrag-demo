@@ -6,7 +6,10 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends
-import torch
+try:
+    import torch
+except ImportError:
+    torch = None
 
 from backend.config import settings
 from backend.db.schemas import SystemStatus, ComponentStatus
@@ -141,7 +144,9 @@ async def get_status():
     database_status = await check_database()
     
     # Check GPU
-    gpu_available = torch.cuda.is_available()
+    gpu_available = False
+    if torch is not None:
+        gpu_available = torch.cuda.is_available()
     
     return SystemStatus(
         qdrant=qdrant_status,
@@ -162,5 +167,5 @@ async def quick_status():
     return {
         "status": "ok",
         "timestamp": datetime.utcnow().isoformat(),
-        "gpu": torch.cuda.is_available()
+        "gpu": torch.cuda.is_available() if torch else False
     }

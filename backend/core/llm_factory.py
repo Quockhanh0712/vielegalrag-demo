@@ -101,14 +101,13 @@ class LLMFactory:
     
     def __init__(self):
         self._api_keys: Dict[str, List[str]] = {}
-        self._active_provider: LLMProvider = LLMProvider.LOCAL_OLLAMA
+        # Default to FPT Cloud (Enterprise preference), waits for key if missing
+        self._active_provider: LLMProvider = LLMProvider.FPT_CLOUD
         self._active_model: Optional[str] = None
         self._load_api_keys()
         
-        # Auto-switch to FPT Cloud if key is present (production mode)
-        if LLMProvider.FPT_CLOUD in self._api_keys:
-            self._active_provider = LLMProvider.FPT_CLOUD
-            self._active_model = PROVIDER_CONFIGS[LLMProvider.FPT_CLOUD].default_model
+        # If user explicitly provides keys for other providers in env, switch to them?
+        # For now, stick to FPT Cloud as primary default per user request.
     
     def _load_api_keys(self):
         """Load API keys from environment or config file."""

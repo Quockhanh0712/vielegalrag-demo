@@ -64,9 +64,16 @@ async def check_ollama() -> ComponentStatus:
         config = factory.get_active_config()
         
         latency = (time.time() - start) * 1000
+        status = "available"
+        msg = f"Provider: {config['provider_name']} | Model: {config['model']}"
+        
+        if not config["has_api_key"] and config["provider"] != "local_ollama":
+            status = "warning"
+            msg = f"{config['provider_name']}: Waiting for API Key"
+            
         return ComponentStatus(
-            status="available" if config["has_api_key"] or config["provider"] == "local_ollama" else "warning",
-            message=f"Provider: {config['provider_name']} | Model: {config['model']}",
+            status=status,
+            message=msg,
             latency_ms=latency
         )
     except Exception as e:

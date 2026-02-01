@@ -30,6 +30,14 @@ async def check_qdrant() -> ComponentStatus:
         if connector.check_connection():
             collections = connector.list_collections()
             latency = (time.time() - start) * 1000
+            
+            if not collections:
+                return ComponentStatus(
+                    status="warning",
+                    message="Connected but no collections found",
+                    latency_ms=latency
+                )
+                
             return ComponentStatus(
                 status="connected",
                 message=f"Collections: {', '.join(collections)}",
@@ -38,7 +46,7 @@ async def check_qdrant() -> ComponentStatus:
         else:
             return ComponentStatus(
                 status="error",
-                message="No collections found"
+                message="Connection failed"
             )
     except Exception as e:
         return ComponentStatus(
@@ -48,24 +56,19 @@ async def check_qdrant() -> ComponentStatus:
 
 
 async def check_ollama() -> ComponentStatus:
-    """Check Ollama availability."""
+    """Check LLM Provider availability."""
     start = time.time()
     try:
-        from backend.core.llm_client import get_llm_client
-        client = get_llm_client()
+        from backend.core.llm_factory import get_llm_factory
+        factory = get_llm_factory()
+        config = factory.get_active_config()
         
-        if client.check_available():
-            latency = (time.time() - start) * 1000
-            return ComponentStatus(
-                status="available",
-                message=f"Model: {settings.OLLAMA_MODEL}",
-                latency_ms=latency
-            )
-        else:
-            return ComponentStatus(
-                status="error",
-                message=f"Model {settings.OLLAMA_MODEL} not found"
-            )
+        latency = (time.time() - start) * 1000
+        return ComponentStatus(
+            status="available" if config["has_api_key"] or config["provider"] == "local_ollama" else "warning",
+            message=f"Provider: {config['provider_name']} | Model: {config['model']}",
+            latency_ms=latency
+        )
     except Exception as e:
         return ComponentStatus(
             status="error",

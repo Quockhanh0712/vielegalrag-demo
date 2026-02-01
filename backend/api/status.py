@@ -106,9 +106,10 @@ async def check_database() -> ComponentStatus:
     try:
         from backend.db.database import get_session
         
+        from sqlalchemy import text
         async with get_session() as session:
             # Simple query to test connection
-            await session.execute("SELECT 1")
+            await session.execute(text("SELECT 1"))
         
         latency = (time.time() - start) * 1000
         return ComponentStatus(

@@ -104,6 +104,11 @@ class LLMFactory:
         self._active_provider: LLMProvider = LLMProvider.LOCAL_OLLAMA
         self._active_model: Optional[str] = None
         self._load_api_keys()
+        
+        # Auto-switch to FPT Cloud if key is present (production mode)
+        if LLMProvider.FPT_CLOUD in self._api_keys:
+            self._active_provider = LLMProvider.FPT_CLOUD
+            self._active_model = PROVIDER_CONFIGS[LLMProvider.FPT_CLOUD].default_model
     
     def _load_api_keys(self):
         """Load API keys from environment or config file."""

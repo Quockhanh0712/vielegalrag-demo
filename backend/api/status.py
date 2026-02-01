@@ -34,7 +34,7 @@ async def check_qdrant() -> ComponentStatus:
             if not collections:
                 return ComponentStatus(
                     status="warning",
-                    message="Connected but no collections found",
+                    message=f"Connected to {settings.QDRANT_HOST[:20]}... but no collections found",
                     latency_ms=latency
                 )
                 
@@ -46,7 +46,7 @@ async def check_qdrant() -> ComponentStatus:
         else:
             return ComponentStatus(
                 status="error",
-                message="Connection failed"
+                message=f"Connection failed to {settings.QDRANT_HOST} (Check QDRANT_HOST/API_KEY)"
             )
     except Exception as e:
         return ComponentStatus(
